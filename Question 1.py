@@ -14,12 +14,55 @@ df_1950 = df_full[df_full['Year'] >= 1950].reset_index(drop=True)
 window_size = 5
 props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
 
+PHASES = [
+    ('Colonial\nModernisation', 1895, 1937, '#FFDDB3', '~2% p.a.'),
+    ('Recovery &\nLand Reform',  1945, 1962, '#B3FFD1', '~9% p.a.'),
+    ('Export-Led\nGrowth',       1962, 1980, '#B3D9FF', '~10% p.a.'),
+    ('High-Tech\nTransition',    1980, 2000, '#E8B3FF', '~6.5% p.a.'),
+    ('Innovation\nEconomy',      2000, 2022, '#FFFBB3', '~3% p.a.'),
+]
+
+
+def add_phase_bands(ax, df):
+    x_min = df['Year'].min()
+    x_max = df['Year'].max()
+    trans = ax.get_xaxis_transform()
+    LABEL_Y = 0.97  # fixed y for all labels (axes fraction)
+
+    for i, (name, start, end, color, growth) in enumerate(PHASES):
+        band_start = max(start, x_min)
+        band_end = min(end, x_max)
+        if band_start >= band_end:
+            continue
+
+        ax.axvspan(band_start, band_end, alpha=0.18, color=color, zorder=0)
+
+        if i == 0:
+            label_x, ha = band_end - 1, 'right'
+        else:
+            label_x, ha = (band_start + band_end) / 2, 'center'
+
+        ax.text(label_x, LABEL_Y, f"{name}\n{growth}", transform=trans,
+                ha=ha, va='top', fontsize=8.5, fontweight='bold',
+                color='#222222', multialignment=ha, linespacing=1.4)
+
+    # WWII gap label (only if the gap is visible in this chart)
+    wwii_start = max(1937, x_min)
+    wwii_end   = min(1945, x_max)
+    if wwii_end > wwii_start:
+        mid_wwii = (wwii_start + wwii_end) / 2
+        ax.text(mid_wwii, LABEL_Y, 'WWII', transform=trans,
+                ha='center', va='top', fontsize=8.5, fontweight='bold',
+                color='#222222', multialignment='center')
+
 
 def plot_log_graph(df, filename, title_suffix):
     """Plot a log-scale GDP per capita graph for the given dataframe."""
     moving_avg = uniform_filter1d(df['GDP per capita'].values, size=window_size, mode='nearest')
 
     fig, ax = plt.subplots(figsize=(14, 8))
+
+    add_phase_bands(ax, df)
 
     ax.plot(df['Year'], df['GDP per capita'],
             linewidth=2, color='#2E86AB', alpha=0.7, label='GDP per Capita')

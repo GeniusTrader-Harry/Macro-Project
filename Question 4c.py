@@ -36,7 +36,7 @@ ax.plot(x_line, y_line, color='#A23B72', linewidth=2, label=f'Line of best fit')
 
 ax.set_xlabel('Government Consumption (% of GDP)', fontsize=13, fontweight='bold')
 ax.set_ylabel('GDP per Capita Growth Rate (%)', fontsize=13, fontweight='bold')
-ax.set_title('Taiwan: Government Spending vs. GDP per Capita Growth Rate',
+ax.set_title('Taiwan: Government Consumption vs. GDP per Capita Growth Rate',
              fontsize=14, fontweight='bold', pad=15)
 ax.grid(True, alpha=0.3, linestyle='--')
 
